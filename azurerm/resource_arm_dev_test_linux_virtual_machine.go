@@ -44,6 +44,48 @@ func resourceArmDevTestLinuxVirtualMachine() *schema.Resource {
 
 			"location": azure.SchemaLocation(),
 
+			"artifact": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"artifact_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+
+						"artifact_repository": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"parameter": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+
+									"value": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+
+						"artifact_status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+
 			"size": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -140,6 +182,7 @@ func resourceArmDevTestLinuxVirtualMachineCreateUpdate(d *schema.ResourceData, m
 	name := d.Get("name").(string)
 	labName := d.Get("lab_name").(string)
 	resourceGroup := d.Get("resource_group_name").(string)
+	subscriptionId := meta.(*ArmClient).subscriptionId
 
 	if requireResourcesToBeImported && d.IsNewResource() {
 		existing, err := client.Get(ctx, resourceGroup, labName, name, "")
@@ -185,6 +228,8 @@ func resourceArmDevTestLinuxVirtualMachineCreateUpdate(d *schema.ResourceData, m
 		}
 	}
 
+	artifacts := expandDevTestLabVirtualMachineArtifacts(d, subscriptionId, resourceGroup, labName)
+
 	authenticateViaSsh := sshKey != ""
 	parameters := dtl.LabVirtualMachine{
 		Location: utils.String(location),
@@ -192,6 +237,7 @@ func resourceArmDevTestLinuxVirtualMachineCreateUpdate(d *schema.ResourceData, m
 			AllowClaim:                 utils.Bool(allowClaim),
 			IsAuthenticationWithSSHKey: utils.Bool(authenticateViaSsh),
 			DisallowPublicIPAddress:    utils.Bool(disallowPublicIPAddress),
+			Artifacts:                  artifacts,
 			GalleryImageReference:      galleryImageReference,
 			LabSubnetName:              utils.String(labSubnetName),
 			LabVirtualNetworkID:        utils.String(labVirtualNetworkId),
@@ -316,4 +362,53 @@ func resourceArmDevTestLinuxVirtualMachineDelete(d *schema.ResourceData, meta in
 	}
 
 	return err
+}
+
+func expandDevTestLabVirtualMachineArtifacts(input *schema.ResourceData, subscriptionId, resourceGroupName, labName string) *[]dtl.ArtifactInstallProperties {
+
+	data := input.Get("artifact").([]interface{})
+
+	if len(data) == 0 {
+		return nil
+	}
+
+	artifacts := make([]dtl.ArtifactInstallProperties, 0, len(data))
+
+	for _, dataRaw := range data {
+		a := dataRaw.(map[string]interface{})
+
+		artifactParameters := make([]dtl.ArtifactParameterProperties, 0)
+		name := a["artifact_name"].(string)
+
+		repository := "public repo"
+		if v, ok := a["aritfact_repository"]; ok && v.(string) != "" {
+			repository = v.(string)
+		}
+
+		idFmt := "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DevTestLab/labs/%s/artifactSources/%s/artifacts/%s"
+		id := fmt.Sprintf(idFmt, subscriptionId, resourceGroupName, labName, repository, name)
+
+		parameters := a["parameter"].([]interface{})
+
+		for _, parametersRaw := range parameters {
+			p := parametersRaw.(map[string]interface{})
+			name := p["name"].(string)
+			value := p["value"].(string)
+
+			parameter := dtl.ArtifactParameterProperties{
+				Name:  utils.String(name),
+				Value: utils.String(value),
+			}
+			artifactParameters = append(artifactParameters, parameter)
+		}
+
+		artifact := dtl.ArtifactInstallProperties{
+			ArtifactID: utils.String(id),
+			Parameters: &artifactParameters,
+		}
+
+		artifacts = append(artifacts, artifact)
+	}
+
+	return &artifacts
 }
