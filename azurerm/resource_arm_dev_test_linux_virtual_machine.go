@@ -222,7 +222,7 @@ func resourceArmDevTestLinuxVirtualMachineCreateUpdate(d *schema.ResourceData, m
 	}
 
 	nic := dtl.NetworkInterfaceProperties{}
-	if disallowPublicIPAddress {
+	if disallowPublicIPAddress && len(natRules) > 0 {
 		nic.SharedPublicIPAddressConfiguration = &dtl.SharedPublicIPAddressConfiguration{
 			InboundNatRules: &natRules,
 		}
