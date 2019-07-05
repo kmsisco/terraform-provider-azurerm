@@ -678,6 +678,9 @@ func (c *ArmClient) registerDevTestClients(endpoint, subscriptionId string, auth
 	labsClient := devtestlabsSvc.NewLabsClientWithBaseURI(endpoint, subscriptionId)
 	c.configureClient(&labsClient.Client, auth)
 
+	devTestCustomImagesClient := devtestlabsSvc.NewCustomImagesClientWithBaseURI(endpoint, subscriptionId)
+	c.configureClient(&devTestCustomImagesClient.Client, auth)
+
 	devTestPoliciesClient := devtestlabsSvc.NewPoliciesClientWithBaseURI(endpoint, subscriptionId)
 	c.configureClient(&devTestPoliciesClient.Client, auth)
 
@@ -688,6 +691,7 @@ func (c *ArmClient) registerDevTestClients(endpoint, subscriptionId string, auth
 	c.configureClient(&devTestVirtualNetworksClient.Client, auth)
 
 	c.devTestLabs = &devtestlabs.Client{
+		CustomImagesClient:    devTestCustomImagesClient,
 		LabsClient:            labsClient,
 		PoliciesClient:        devTestPoliciesClient,
 		VirtualMachinesClient: devTestVirtualMachinesClient,
