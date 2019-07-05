@@ -260,6 +260,7 @@ func Provider() terraform.ResourceProvider {
 			"azurerm_data_lake_store":                                    resourceArmDataLakeStore(),
 			"azurerm_databricks_workspace":                               resourceArmDatabricksWorkspace(),
 			"azurerm_ddos_protection_plan":                               resourceArmDDoSProtectionPlan(),
+			"azurerm_dev_test_custom_image":                              resourceArmDevTestCustomImage(),
 			"azurerm_dev_test_lab":                                       resourceArmDevTestLab(),
 			"azurerm_dev_test_linux_virtual_machine":                     resourceArmDevTestLinuxVirtualMachine(),
 			"azurerm_dev_test_policy":                                    resourceArmDevTestPolicy(),
