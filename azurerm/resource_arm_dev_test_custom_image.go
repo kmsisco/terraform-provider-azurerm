@@ -24,6 +24,12 @@ func resourceArmDevTestCustomImage() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+
+			"lab_name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
@@ -55,6 +61,36 @@ func resourceArmDevTestCustomImage() *schema.Resource {
 						"source_vm_id": {
 							Type:     schema.TypeString,
 							Required: true,
+						},
+
+						"linux_os_info": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"linux_os_state": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validate.DevTestCustomImageLinuxOsStateType(),
+									},
+								},
+							},
+						},
+
+						"windows_os_info": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"windows_os_state": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validate.DevTestCustomImageWindowsOsStateType(),
+									},
+								},
+							},
 						},
 					},
 				},
@@ -218,20 +254,62 @@ func expandDevTestCustomImageVMProperties(input []interface{}) *dtl.CustomImageP
 	if len(input) == 0 {
 		return nil
 	}
-
 	v := input[0].(map[string]interface{})
 	sourceVMID := v["source_vm_id"].(string)
 
+	linuxOsInfoRaw := v["linux_os_info"].([]interface{})
+	linuxOsInfo := expandDevTestCustomImageLinuxOsInfo(linuxOsInfoRaw)
+
+	windowsOsInfoRaw := v["windows_os_info"].([]interface{})
+	windowsOsInfo := expandDevTestCustomImageWindowsOsInfo(windowsOsInfoRaw)
+
 	vm := dtl.CustomImagePropertiesFromVM{
-		SourceVMID: utils.String(sourceVMID),
+		SourceVMID:    utils.String(sourceVMID),
+		LinuxOsInfo:   linuxOsInfo,
+		WindowsOsInfo: windowsOsInfo,
 	}
 
 	return &vm
 }
 
-func flattenDevTestCustomImageVMProperties(input *dtl.CustomImagePropertiesFromVM) interface{} {
-	if input == nil {
+func expandDevTestCustomImageLinuxOsInfo(input []interface{}) *dtl.LinuxOsInfo {
+	if len(input) == 0 {
 		return nil
+	}
+
+	v := input[0].(map[string]interface{})
+	linuxOsState := v["linux_os_state"]
+
+	if linuxOsState.(string) == "" {
+		return nil
+	}
+
+	return &dtl.LinuxOsInfo{
+		LinuxOsState: dtl.LinuxOsState(linuxOsState.(string)),
+	}
+}
+
+func expandDevTestCustomImageWindowsOsInfo(input []interface{}) *dtl.WindowsOsInfo {
+	if len(input) == 0 {
+		return nil
+	}
+
+	v := input[0].(map[string]interface{})
+	windowsOsState := v["windows_os_state"]
+
+	if windowsOsState.(string) == "" {
+		return nil
+	}
+
+	return &dtl.WindowsOsInfo{
+		WindowsOsState: dtl.WindowsOsState(windowsOsState.(string)),
+	}
+}
+
+func flattenDevTestCustomImageVMProperties(input *dtl.CustomImagePropertiesFromVM) []interface{} {
+	outputs := make([]interface{}, 0)
+	if input == nil {
+		return outputs
 	}
 
 	properties := make(map[string]interface{})
@@ -239,5 +317,43 @@ func flattenDevTestCustomImageVMProperties(input *dtl.CustomImagePropertiesFromV
 		properties["source_vm_id"] = *input.SourceVMID
 	}
 
-	return properties
+	if input.LinuxOsInfo != nil {
+		properties["linux_os_info"] = flattenDevTestCustomImageLinuxOsInfo(input.LinuxOsInfo)
+	}
+
+	if input.WindowsOsInfo != nil {
+		properties["windows_os_info"] = flattenDevTestCustomImageWindowsOsInfo(input.WindowsOsInfo)
+	}
+
+	outputs = append(outputs, properties)
+
+	return outputs
+}
+
+func flattenDevTestCustomImageLinuxOsInfo(input *dtl.LinuxOsInfo) []interface{} {
+	outputs := make([]interface{}, 0)
+	if input == nil {
+		return outputs
+	}
+
+	info := make(map[string]interface{})
+	info["linux_os_state"] = string(input.LinuxOsState)
+
+	outputs = append(outputs, info)
+
+	return outputs
+}
+
+func flattenDevTestCustomImageWindowsOsInfo(input *dtl.WindowsOsInfo) []interface{} {
+	outputs := make([]interface{}, 0)
+	if input == nil {
+		return outputs
+	}
+
+	info := make(map[string]interface{})
+	info["windows_os_state"] = string(input.WindowsOsState)
+
+	outputs = append(outputs, info)
+
+	return outputs
 }

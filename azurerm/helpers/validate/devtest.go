@@ -9,6 +9,22 @@ import (
 	"github.com/hashicorp/terraform/helper/validation"
 )
 
+func DevTestCustomImageLinuxOsStateType() schema.SchemaValidateFunc {
+	return validation.StringInSlice([]string{
+		string(dtl.DeprovisionApplied),
+		string(dtl.DeprovisionRequested),
+		string(dtl.NonDeprovisioned),
+	}, false)
+}
+
+func DevTestCustomImageWindowsOsStateType() schema.SchemaValidateFunc {
+	return validation.StringInSlice([]string{
+		string(dtl.SysprepApplied),
+		string(dtl.SysprepRequested),
+		string(dtl.NonSysprepped),
+	}, false)
+}
+
 func DevTestLabName() schema.SchemaValidateFunc {
 	return validation.StringMatch(
 		regexp.MustCompile("^[A-Za-z0-9_-]+$"),
