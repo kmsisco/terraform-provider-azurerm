@@ -25,7 +25,24 @@ func dataSourceArmDevTestCustomImage() *schema.Resource {
 				ValidateFunc: validate.DevTestLabName(),
 			},
 
-			"resource_group_name": azure.SchemaResourceGroupNameForDataSource(),
+			// There's a bug in the Azure API where this is returned in lower-case
+			// BUG: https://github.com/Azure/azure-rest-api-specs/issues/3964
+			"resource_group_name": azure.SchemaResourceGroupNameDiffSuppress(),
+
+			"location": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"author": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -51,6 +68,13 @@ func dataSourceArmDevTestCustomImageRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("API returns a nil/empty id on Custom Image %q in Dev Test Lab %q (Resource Group %q): %+v", name, labName, resGroup, err)
 	}
 	d.SetId(*resp.ID)
+
+	d.Set("name", resp.Name)
+	d.Set("resource_group_name", resGroup)
+	d.Set("lab_name", labName)
+	d.Set("location", resp.Location)
+	d.Set("author", resp.Author)
+	d.Set("description", resp.Description)
 
 	return nil
 }
