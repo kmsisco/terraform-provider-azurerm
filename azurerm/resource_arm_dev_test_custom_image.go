@@ -113,7 +113,7 @@ func resourceArmDevTestCustomImageCreateUpdate(d *schema.ResourceData, meta inte
 		existing, err := client.Get(ctx, resGroup, labName, name, "")
 		if err != nil {
 			if !utils.ResponseWasNotFound(existing.Response) {
-				return fmt.Errorf("Error checking for presence of existing Custom Image %^q in Dev Test %q (Resource Group %q): %s", name, labName, resGroup, err)
+				return fmt.Errorf("Error checking for presence of existing Custom Image %q in Dev Test %q (Resource Group %q): %s", name, labName, resGroup, err)
 			}
 		}
 
