@@ -73,12 +73,12 @@ resource "azurerm_dev_test_linux_virtual_machine" "test" {
   lab_virtual_network_id = "${azurerm_dev_test_virtual_network.test.id}"
   lab_subnet_name        = "${azurerm_dev_test_virtual_network.test.subnet.0.name}"
   storage_type           = "Premium"
-  
+
   gallery_image_reference {
     offer     = "UbuntuServer"
     publisher = "Canonical"
-	sku       = "18.04-LTS"
-	version   = "latest"
+    sku       = "18.04-LTS"
+    version   = "latest"
   }
 }
 
@@ -91,10 +91,10 @@ resource "azurerm_dev_test_custom_image" "test" {
   description         = "A test custom image"
 
   vm {
-	source_vm_id  = "${azurerm_dev_test_linux_virtual_machine.test.id}"
-	linux_os_info {
-	  linux_os_state = "DeprovisionRequested"
-	}
+    source_vm_id  = "${azurerm_dev_test_linux_virtual_machine.test.id}"
+    linux_os_info {
+      linux_os_state = "DeprovisionRequested"
+    }
   }
 }
 
@@ -103,7 +103,5 @@ data "azurerm_dev_test_custom_image" "test" {
   lab_name            = "${azurerm_dev_test_lab.test.name}"
   resource_group_name = "${azurerm_resource_group.test.name}"
 }
-  
-  
 `, rInt, location, rInt, rInt, rInt, rInt)
 }

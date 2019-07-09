@@ -29,4 +29,3 @@ output "custom_image_id" {
 * `name` - (Required) Specifies the name of the Custom Image.
 * `lab_name` - (Required) Specifies the name of the Dev Test Lab.
 * `resource_group_name` - (Required) Specifies the name of the resource group that contains the Custom Image.
-

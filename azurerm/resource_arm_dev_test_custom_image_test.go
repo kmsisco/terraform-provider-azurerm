@@ -103,12 +103,12 @@ resource "azurerm_dev_test_linux_virtual_machine" "test" {
   lab_virtual_network_id = "${azurerm_dev_test_virtual_network.test.id}"
   lab_subnet_name        = "${azurerm_dev_test_virtual_network.test.subnet.0.name}"
   storage_type           = "Premium"
-  
+
   gallery_image_reference {
     offer     = "UbuntuServer"
     publisher = "Canonical"
-	sku       = "18.04-LTS"
-	version   = "latest"
+    sku       = "18.04-LTS"
+    version   = "latest"
   }
 }
 
@@ -121,13 +121,12 @@ resource "azurerm_dev_test_custom_image" "test" {
   description         = "A test custom image"
 
   vm {
-	  source_vm_id  = "${azurerm_dev_test_linux_virtual_machine.test.id}"
+    source_vm_id  = "${azurerm_dev_test_linux_virtual_machine.test.id}"
     linux_os_info {
-	    linux_os_state = "DeprovisionRequested"
-	  }
+      linux_os_state = "DeprovisionRequested"
+    }
   }
 }
-
 `, rInt, location, rInt, rInt, rInt, rInt)
 }
 
@@ -148,13 +147,13 @@ resource "azurerm_dev_test_virtual_network" "test" {
   name                = "acctestvn%d"
   lab_name            = "${azurerm_dev_test_lab.test.name}"
   resource_group_name = "${azurerm_resource_group.test.name}"
-  
+
   subnet {
     use_public_ip_address           = "Allow"
     use_in_virtual_machine_creation = "Allow"
   }
 }
-  
+
 resource "azurerm_dev_test_windows_virtual_machine" "test" {
   name                   = "acctestvm%d"
   lab_name               = "${azurerm_dev_test_lab.test.name}"
@@ -166,7 +165,7 @@ resource "azurerm_dev_test_windows_virtual_machine" "test" {
   lab_virtual_network_id = "${azurerm_dev_test_virtual_network.test.id}"
   lab_subnet_name        = "${azurerm_dev_test_virtual_network.test.subnet.0.name}"
   storage_type           = "Standard"
-  
+
   gallery_image_reference {
     offer     = "WindowsServer"
     publisher = "MicrosoftWindowsServer"
@@ -184,12 +183,11 @@ resource "azurerm_dev_test_custom_image" "test" {
   description         = "A test custom image"
 
   vm {
-	  source_vm_id  = "${azurerm_dev_test_windows_virtual_machine.test.id}"
-	  windows_os_info {
-		  windows_os_state = "SysprepRequested"
-	  }
+    source_vm_id  = "${azurerm_dev_test_windows_virtual_machine.test.id}"
+    windows_os_info {
+      windows_os_state = "SysprepRequested"
+    }
   }
 }
-
 `, rInt, location, rInt, rInt, rInt, rInt)
 }
