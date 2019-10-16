@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/Azure/azure-sdk-for-go/services/devtestlabs/mgmt/2016-05-15/dtl"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/helpers/azure"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/helpers/tf"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/helpers/validate"
@@ -100,7 +100,7 @@ func resourceArmDevTestCustomImage() *schema.Resource {
 }
 
 func resourceArmDevTestCustomImageCreateUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*ArmClient).devTestLabs.CustomImagesClient
+	client := meta.(*ArmClient).DevTestLabs.CustomImagesClient
 	ctx := meta.(*ArmClient).StopContext
 
 	log.Printf("[INFO] preparing arguments for DevTest Custom Image creation")
@@ -164,7 +164,7 @@ func resourceArmDevTestCustomImageCreateUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceArmDevTestCustomImageRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*ArmClient).devTestLabs.CustomImagesClient
+	client := meta.(*ArmClient).DevTestLabs.CustomImagesClient
 	ctx := meta.(*ArmClient).StopContext
 
 	id, err := parseAzureResourceID(d.Id())
@@ -215,7 +215,7 @@ func resourceArmDevTestCustomImageRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceArmDevTestCustomImageDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*ArmClient).devTestLabs.CustomImagesClient
+	client := meta.(*ArmClient).DevTestLabs.CustomImagesClient
 	ctx := meta.(*ArmClient).StopContext
 
 	id, err := parseAzureResourceID(d.Id())

@@ -3,7 +3,7 @@ package azurerm
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/helpers/azure"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/helpers/validate"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/utils"
@@ -46,7 +46,7 @@ func dataSourceArmDevTestCustomImage() *schema.Resource {
 }
 
 func dataSourceArmDevTestCustomImageRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*ArmClient).devTestLabs.CustomImagesClient
+	client := meta.(*ArmClient).DevTestLabs.CustomImagesClient
 	ctx := meta.(*ArmClient).StopContext
 
 	resGroup := d.Get("resource_group_name").(string)
