@@ -6,6 +6,7 @@ import (
 )
 
 type Client struct {
+	CustomImagesClient    *dtl.CustomImagesClient
 	LabsClient            *dtl.LabsClient
 	LabSchedulesClient    *dtl.SchedulesClient
 	PoliciesClient        *dtl.PoliciesClient
@@ -14,6 +15,10 @@ type Client struct {
 }
 
 func BuildClient(o *common.ClientOptions) *Client {
+
+	CustomImagesClient := dtl.NewCustomImagesClientWithBaseURI(o.ResourceManagerEndpoint, o.SubscriptionId)
+	o.ConfigureClient(&CustomImagesClient.Client, o.ResourceManagerAuthorizer)
+
 	LabsClient := dtl.NewLabsClientWithBaseURI(o.ResourceManagerEndpoint, o.SubscriptionId)
 	o.ConfigureClient(&LabsClient.Client, o.ResourceManagerAuthorizer)
 
@@ -30,6 +35,7 @@ func BuildClient(o *common.ClientOptions) *Client {
 	o.ConfigureClient(&LabSchedulesClient.Client, o.ResourceManagerAuthorizer)
 
 	return &Client{
+		CustomImagesClient:    &CustomImagesClient,
 		LabsClient:            &LabsClient,
 		LabSchedulesClient:    &LabSchedulesClient,
 		PoliciesClient:        &PoliciesClient,
