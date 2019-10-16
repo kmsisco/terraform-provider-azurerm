@@ -253,7 +253,11 @@ func resourceArmDevTestLinuxVirtualMachineCreateUpdate(d *schema.ResourceData, m
 
 	galleryImageReferenceRaw := d.Get("gallery_image_reference").([]interface{})
 	galleryImageReference := azure.ExpandDevTestLabVirtualMachineGalleryImageReference(galleryImageReferenceRaw, "Linux")
-	customImageId := d.Get("custom_image_id").(string)
+
+	var customImageId *string
+	if v, ok := d.GetOk("custom_image_id"); ok && v.(string) != "" {
+		*customImageId = v.(string)
+	}
 
 	natRulesRaw := d.Get("inbound_nat_rule").(*schema.Set)
 	natRules := azure.ExpandDevTestLabVirtualMachineNatRules(natRulesRaw)
@@ -280,7 +284,7 @@ func resourceArmDevTestLinuxVirtualMachineCreateUpdate(d *schema.ResourceData, m
 			DisallowPublicIPAddress:    utils.Bool(disallowPublicIPAddress),
 			Artifacts:                  artifacts,
 			GalleryImageReference:      galleryImageReference,
-			CustomImageID:              utils.String(customImageId),
+			CustomImageID:              customImageId,
 			LabSubnetName:              utils.String(labSubnetName),
 			LabVirtualNetworkID:        utils.String(labVirtualNetworkId),
 			NetworkInterface:           &nic,
@@ -428,7 +432,7 @@ func expandDevTestLabVirtualMachineArtifacts(input *schema.ResourceData, subscri
 		name := a["artifact_name"].(string)
 
 		repository := "public repo"
-		if v, ok := a["aritfact_repository"]; ok && v.(string) != "" {
+		if v, ok := a["artifact_repository"]; ok && v.(string) != "" {
 			repository = v.(string)
 		}
 
