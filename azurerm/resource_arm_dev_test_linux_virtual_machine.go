@@ -162,6 +162,11 @@ func resourceArmDevTestLinuxVirtualMachine() *schema.Resource {
 
 			"gallery_image_reference": azure.SchemaDevTestVirtualMachineGalleryImageReference(),
 
+			"custom_image_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"inbound_nat_rule": azure.SchemaDevTestVirtualMachineInboundNatRule(),
 
 			"notes": {
@@ -225,6 +230,7 @@ func resourceArmDevTestLinuxVirtualMachineCreateUpdate(d *schema.ResourceData, m
 
 	galleryImageReferenceRaw := d.Get("gallery_image_reference").([]interface{})
 	galleryImageReference := azure.ExpandDevTestLabVirtualMachineGalleryImageReference(galleryImageReferenceRaw, "Linux")
+	customImageId := d.Get("custom_image_id").(string)
 
 	natRulesRaw := d.Get("inbound_nat_rule").(*schema.Set)
 	natRules := azure.ExpandDevTestLabVirtualMachineNatRules(natRulesRaw)
@@ -251,6 +257,7 @@ func resourceArmDevTestLinuxVirtualMachineCreateUpdate(d *schema.ResourceData, m
 			DisallowPublicIPAddress:    utils.Bool(disallowPublicIPAddress),
 			Artifacts:                  artifacts,
 			GalleryImageReference:      galleryImageReference,
+			CustomImageID:              utils.String(customImageId),
 			LabSubnetName:              utils.String(labSubnetName),
 			LabVirtualNetworkID:        utils.String(labVirtualNetworkId),
 			NetworkInterface:           &nic,
