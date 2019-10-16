@@ -27,6 +27,8 @@ func TestAccAzureRMDevTestLinuxVirtualMachine_basic(t *testing.T) {
 					testCheckAzureRMDevTestLinuxVirtualMachineExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "gallery_image_reference.0.publisher", "Canonical"),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
+					resource.TestCheckResourceAttr(resourceName, "network_interface.0.private_ip_address", "xxx"),
+					resource.TestCheckResourceAttr(resourceName, "network_interface.0.public_ip_address", "xxx"),
 				),
 			},
 			{
@@ -73,7 +75,7 @@ func TestAccAzureRMDevTestLinuxVirtualMachine_requiresImport(t *testing.T) {
 	})
 }
 
-func TestAccAzureRMDevTestLinuxVirtualMachine_basicSSH(t *testing.T) {
+func TestAccAzureRMDevTestLinuxVirtualMachine_xbasicSSH(t *testing.T) {
 	resourceName := "azurerm_dev_test_linux_virtual_machine.test"
 	rInt := tf.AccRandTimeInt()
 	location := testLocation()

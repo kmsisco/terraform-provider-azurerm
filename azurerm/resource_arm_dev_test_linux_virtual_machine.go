@@ -133,6 +133,29 @@ func resourceArmDevTestLinuxVirtualMachine() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"network_interface": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"dns_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"private_ip_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"public_ip_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+
 			"allow_claim": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -308,7 +331,7 @@ func resourceArmDevTestLinuxVirtualMachineRead(d *schema.ResourceData, meta inte
 	labName := id.Path["labs"]
 	name := id.Path["virtualmachines"]
 
-	read, err := client.Get(ctx, resourceGroup, labName, name, "")
+	read, err := client.Get(ctx, resourceGroup, labName, name, "properties($expand=networkInterface)")
 	if err != nil {
 		if utils.ResponseWasNotFound(read.Response) {
 			log.Printf("[DEBUG] DevTest Linux Virtual Machine %q was not found in Lab %q / Resource Group %q - removing from state!", name, labName, resourceGroup)
@@ -333,6 +356,11 @@ func resourceArmDevTestLinuxVirtualMachineRead(d *schema.ResourceData, meta inte
 		d.Set("size", props.Size)
 		d.Set("storage_type", props.StorageType)
 		d.Set("username", props.UserName)
+
+		flattenedNetwork := flattenedNetworkInterfaceProperties(props.NetworkInterface)
+		if err := d.Set("network_interface", flattenedNetwork); err != nil {
+			return fmt.Errorf("Error setting `network_interface`: %+v", err)
+		}
 
 		flattenedImage := azure.FlattenDevTestVirtualMachineGalleryImage(props.GalleryImageReference)
 		if err := d.Set("gallery_image_reference", flattenedImage); err != nil {
@@ -430,4 +458,20 @@ func expandDevTestLabVirtualMachineArtifacts(input *schema.ResourceData, subscri
 	}
 
 	return &artifacts
+}
+
+func flattenedNetworkInterfaceProperties(input *dtl.NetworkInterfaceProperties) []interface{} {
+	outputs := make([]interface{}, 0)
+	if input == nil {
+		return outputs
+	}
+
+	info := make(map[string]interface{})
+	info["dns_name"] = input.DNSName
+	info["public_ip_address"] = input.PublicIPAddress
+	info["private_ip_address"] = input.PrivateIPAddress
+
+	outputs = append(outputs, info)
+
+	return outputs
 }

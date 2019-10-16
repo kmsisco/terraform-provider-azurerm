@@ -540,7 +540,8 @@ func WithQueryParameters(queryParameters map[string]interface{}) PrepareDecorato
 					}
 					v.Add(key, d)
 				}
-				r.URL.RawQuery = v.Encode()
+				s, _ := url.QueryUnescape(v.Encode())
+				r.URL.RawQuery = s
 			}
 			return r, err
 		})
